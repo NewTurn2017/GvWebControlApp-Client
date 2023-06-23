@@ -1,56 +1,32 @@
 import React, { useState, useEffect } from 'react'
 import axios from 'axios'
-import styled from 'styled-components'
-import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom'
-import VolumeSection from './components/VolumeSection' // VolumeSection 컴포넌트를 추가해야합니다.
-import EQSection from './components/EQSection' // EQSection 컴포넌트를 추가해야합니다.
+import {
+  BrowserRouter as Router,
+  Route,
+  Routes,
+  Link as RouterLink,
+} from 'react-router-dom'
+import VolumeSection from './components/VolumeSection'
+import EQSection from './components/EQSection'
+import Home from './components/Home'
+import {
+  Button,
+  Typography,
+  Box,
+  AppBar,
+  Toolbar,
+  Container,
+  List,
+  ListItem,
+} from '@mui/material'
+import { Link as MuiLink } from '@mui/material'
+import { createTheme, ThemeProvider } from '@mui/material/styles'
 
-const StyledNavigation = styled.nav`
-  height: 100vh;
-  width: 200px;
-  background-color: blue;
-  color: white;
-  padding: 20px;
-`
-
-const StyledLink = styled(Link)`
-  color: white;
-  font-weight: bold;
-  text-decoration: none;
-  display: block;
-  margin-bottom: 30px;
-`
-
-const Header = styled.header`
-  display: flex;
-  justify-content: left;
-  padding: 1em;
-  background-color: #f5f5f5;
-  border-bottom: 1px solid #ddd;
-`
-
-const StyledButton = styled.button`
-  margin: 1em;
-  padding: 0.25em 1em;
-  border: 2px solid palevioletred;
-  border-radius: 3px;
-  cursor: pointer;
-  background-color: ${(props) => (props.connected ? 'green' : 'palevioletred')};
-
-  &:hover {
-    background-color: palegreen;
-  }
-
-  &:active {
-    background-color: darkgreen;
-  }
-`
-
-const Content = styled.div`
-  flex-grow: 1;
-  padding: 1em;
-`
-
+const theme = createTheme({
+  palette: {
+    mode: 'dark',
+  },
+})
 function App() {
   const [connected, setConnected] = useState(false) // 서버 연결 상태 표현을 위한 상태
   const [clientCount, setClientCount] = useState(0) // 접속된 클라이언트 수를 저장할 상태를 추가합니다.
@@ -100,30 +76,105 @@ function App() {
   }
 
   return (
-    <Router>
-      <div className="App">
-        <Header>
-          <h1>접속된 클라이언트 수: {clientCount}</h1>{' '}
-          {/* 접속된 클라이언트 수를 화면에 표시합니다. */}
-          <StyledButton onClick={serverStart} connected={connected}>
-            접속
-          </StyledButton>
-          <StyledButton onClick={serverStop}>서버 종료</StyledButton>
-        </Header>
-        <main style={{ display: 'flex' }}>
-          <StyledNavigation>
-            <StyledLink to="/volume">Volume Section</StyledLink>
-            <StyledLink to="/eq">EQ Section</StyledLink>
-          </StyledNavigation>
-          <Content>
-            <Routes>
-              <Route path="/volume" element={<VolumeSection />} />
-              <Route path="/eq" element={<EQSection />} />
-            </Routes>
-          </Content>
-        </main>
-      </div>
-    </Router>
+    <ThemeProvider theme={theme}>
+      <Router>
+        <Box
+          className="App"
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            minHeight: '100vh',
+            bgcolor: 'background.default',
+          }}
+        >
+          <AppBar position="static">
+            <Toolbar>
+              <Typography variant="h6" sx={{ flexGrow: 1, color: '#fff' }}>
+                접속된 클라이언트 수: {clientCount}
+              </Typography>
+              <Button
+                variant="contained"
+                onClick={serverStart}
+                disabled={connected}
+                color="primary"
+              >
+                접속
+              </Button>
+              <Button
+                variant="contained"
+                onClick={serverStop}
+                color="secondary"
+              >
+                서버 종료
+              </Button>
+            </Toolbar>
+          </AppBar>
+          <Box
+            sx={{
+              display: 'flex',
+              flex: '1 1 auto',
+              bgcolor: 'background.default',
+            }}
+          >
+            <Box
+              component="nav"
+              sx={{
+                width: '200px',
+                bgcolor: 'grey.900',
+                color: 'white',
+                p: '20px',
+              }}
+            >
+              <List>
+                <ListItem>
+                  <MuiLink
+                    to="/"
+                    component={RouterLink}
+                    underline="none"
+                    color="text.primary"
+                  >
+                    Home
+                  </MuiLink>
+                </ListItem>
+                <ListItem>
+                  <MuiLink
+                    to="/volume"
+                    component={RouterLink}
+                    underline="none"
+                    color="text.primary"
+                  >
+                    Volume
+                  </MuiLink>
+                </ListItem>
+                <ListItem>
+                  <MuiLink
+                    to="/peq"
+                    component={RouterLink}
+                    underline="none"
+                    color="text.primary"
+                  >
+                    PEQ
+                  </MuiLink>
+                </ListItem>
+              </List>
+            </Box>
+            <Container
+              component="main"
+              sx={{ flexGrow: 1, p: '1em', bgcolor: 'background.default' }}
+            >
+              <Routes>
+                <Route path="/" element={<Home />} />
+                <Route
+                  path="/volume"
+                  element={<VolumeSection clientCount={clientCount} />}
+                />
+                <Route path="/peq" element={<EQSection />} />
+              </Routes>
+            </Container>
+          </Box>
+        </Box>
+      </Router>
+    </ThemeProvider>
   )
 }
 
